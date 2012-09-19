@@ -343,7 +343,7 @@ function attachFile(ctx, parentId, filename, type, callback) {
 
 function blobStream(ctx, objectClass, id, fields, callback) {
   ctx.actions.push({
-    'command':makeURL(ctx, ['sobjects',objectClass,id],fields),
+    'command':makeURL(ctx, ['sobjects',objectClass,id,fields]),
     'method':'GET',
     'stream':true,
     'callback':callback
