@@ -196,6 +196,7 @@ function Salesforce(options) {
   Object.defineProperty(this, 'attachFile', { 'value': attachFile.bind(ctx, ctx) });
   Object.defineProperty(this, 'attachBuffer', { 'value': attachmentCreate.bind(ctx, ctx) });
   Object.defineProperty(this, 'blobStream', { 'value': blobStream.bind(ctx, ctx) });
+  Object.defineProperty(this, 'fetchBlobField', { 'value': blobField.bind(ctx, ctx) });
   Object.defineProperty(this, 'attachmentStream', { 'value': attachmentStream.bind(ctx, ctx) });
   return this;
 }
@@ -362,6 +363,15 @@ function blobStream(ctx, objectClass, id, fields, callback) {
     'stream':true,
     'callback':callback,
     'domain':process.domain
+  });
+  execute(ctx);
+}
+
+function blobField(ctx, objectClass, id, field, callback) {
+  ctx.actions.push({
+    'command':makeURL(ctx, ['sobjects',objectClass,id,field]),
+    'method':'GET',
+    'callback':callback
   });
   execute(ctx);
 }
