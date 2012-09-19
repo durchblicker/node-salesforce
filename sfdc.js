@@ -341,7 +341,7 @@ function attachFile(ctx, parentId, filename, type, callback) {
   attachStream(ctx, parentId, name, fs.createReadStream(filename), type, type);
 }
 
-function blobStream(ctx, objectClass, id, field, callback) {
+function blobStream(ctx, objectClass, id, fields, callback) {
   ctx.actions.push({
     'command':makeURL(ctx, ['sobjects',objectClass,id],fields),
     'method':'GET',
@@ -357,7 +357,7 @@ function simpleMime(name) {
     case '.jpg' : return 'image/jpeg';
     case '.jpeg' : return 'image/jpeg';
     case '.gif' : return 'image/gif';
-    case '.png' : return 'image/pnd';
+    case '.png' : return 'image/png';
     default : return 'application/octet-stream';
   }
 }
