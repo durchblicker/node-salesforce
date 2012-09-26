@@ -1,9 +1,10 @@
 {
   "name":"salesforce",
-  "version":"0.1.1",
+  "version":"0.1.2",
   "author":[
 		"Philipp Dunkel <p.dunkel@durchblicker.at>",
-		"Petra Ollram <p.ollram@durchblicker.at>"
+		"Petra Ollram <p.ollram@durchblicker.at>",
+    "Stefan Wagner <s.wagner@durchblicker.at>"
 	],
   "description":"A node.js module for interaction with the SFDC REST API.",
   "keywords": ["web", "server", "salesforce"],
