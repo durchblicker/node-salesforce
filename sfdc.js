@@ -255,7 +255,7 @@ function fetch(ctx, objectClass, id, fields, callback) {
   fields = (fields && fields.length) ? { 'fields':fields.join(', ') } : undefined;
 
   ctx.actions.push({
-    'command':makeURL(ctx, ['sobjects',objectClass,id],fields),
+    'command':makeURL(ctx, ['sobjects',objectClass,id,fields]),
     'method':'GET',
     'callback':callback,
     'domain':process.domain
