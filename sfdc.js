@@ -72,6 +72,7 @@ function request(token, host, path, method, data, stream, callback) {
     'host': host, 
     'port': 443, 
     'path': path, 
+    'agent': false,
     'method': method, 
     'headers':{ 
       'Authorization':'OAuth '+token,
