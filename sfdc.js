@@ -120,7 +120,7 @@ function request(token, host, path, method, data, stream, callback) {
     res.on('data', data.push.bind(data));
     res.on('end', function() {
       data = Buffer.concat(data);
-      log('req done', data);
+      log('req done');
      
       if (res.headers['content-type'] && res.headers['content-type'].substr(0, 'application/json'.length) === 'application/json') {
         try {
