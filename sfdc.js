@@ -31,6 +31,12 @@ var querystring = require('querystring').stringify;
 var parseURL = require('url').parse;
 var fs = require('fs');
 var extension = require('path').extname;
+var log = function(txt, d){
+  var d = JSON.stringify(d);
+
+  console.log(new Date().toString()+' SFDC: '+txt, d);
+
+};
 
 function login(host, username, password, credential, client, secret, callback) {
   var options = {
@@ -51,7 +57,7 @@ function login(host, username, password, credential, client, secret, callback) {
     }
   };
 
-
+  log('login', options);
   https.request(options, function(res) {
     if (res.statusCode > 299) return callback(new Error('Invalid Login: ' + res.statusCode));
     var data = [];
@@ -64,6 +70,7 @@ function login(host, username, password, credential, client, secret, callback) {
         return callback(ex);
       }
       data.instanceHost = parseURL(data.instance_url).hostname;
+      log('login done', data);
       return callback(undefined, data);
     });
   }).on('error', callback).end();
@@ -84,6 +91,7 @@ function request(token, host, path, method, data, stream, callback) {
     options.headers['Content-Length'] = data.length;
     options.headers['Expect'] = '100-continue';
   }
+  log('req', options);
   https.request(options, function(res) {
     var err;
     switch (res.statusCode) {
@@ -112,6 +120,7 @@ function request(token, host, path, method, data, stream, callback) {
     res.on('data', data.push.bind(data));
     res.on('end', function() {
       data = Buffer.concat(data);
+      log('req done', data);
      
       if (res.headers['content-type'] && res.headers['content-type'].substr(0, 'application/json'.length) === 'application/json') {
         try {
