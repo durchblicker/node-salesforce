@@ -36,6 +36,7 @@ function login(host, username, password, credential, client, secret, callback) {
   var options = {
     host: String(host),
     port: 443,
+    agent: false,
     path: '/services/oauth2/token?' + querystring({
       'grant_type': 'password',
       'client_id': client,
