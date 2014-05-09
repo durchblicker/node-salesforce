@@ -168,6 +168,7 @@ function execute(ctx) {
   var action = ctx.actions.shift();
   request(ctx.login.access_token, ctx.login.instanceHost, action.command, action.method, action.data, action.stream, function(err, res) {
     if (err) {
+      log('err', err, JSON.stringify(err));
       if (err.clearToken) ctx.login = undefined;
       if (err.retry) {
         ctx.actions.unshift(action);
