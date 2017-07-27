@@ -31,11 +31,18 @@ var querystring = require('querystring').stringify;
 var parseURL = require('url').parse;
 var fs = require('fs');
 var extension = require('path').extname;
+var log = function(txt, d){
+  var d = JSON.stringify(d);
+
+  console.log(new Date().toString()+' SFDC: '+txt, d);
+
+};
 
 function login(host, username, password, credential, client, secret, callback) {
   var options = {
     host: String(host),
     port: 443,
+    agent: false,
     path: '/services/oauth2/token?' + querystring({
       'grant_type': 'password',
       'client_id': client,
@@ -50,7 +57,7 @@ function login(host, username, password, credential, client, secret, callback) {
     }
   };
 
-
+  log('login', options);
   https.request(options, function(res) {
     if (res.statusCode > 299) return callback(new Error('Invalid Login: ' + res.statusCode));
     var data = [];
@@ -63,6 +70,7 @@ function login(host, username, password, credential, client, secret, callback) {
         return callback(ex);
       }
       data.instanceHost = parseURL(data.instance_url).hostname;
+      log('login done', data);
       return callback(undefined, data);
     });
   }).on('error', callback).end();
@@ -72,6 +80,7 @@ function request(domain, token, host, path, method, data, stream, callback) {
     'host': host, 
     'port': 443, 
     'path': path, 
+    'agent': false,
     'method': method, 
     'headers':{ 
       'Authorization':'OAuth '+token,
@@ -82,7 +91,8 @@ function request(domain, token, host, path, method, data, stream, callback) {
     options.headers['Content-Length'] = data.length;
     options.headers['Expect'] = '100-continue';
   }
-  var request=https.request(options, function(res) {
+  log('req', options);
+  https.request(options, function(res) {
     var err;
     switch (res.statusCode) {
       case 401:
@@ -110,6 +120,7 @@ function request(domain, token, host, path, method, data, stream, callback) {
     res.on('data', data.push.bind(data));
     res.on('end', function() {
       data = Buffer.concat(data);
+      log('req done');
      
       if (res.headers['content-type'] && res.headers['content-type'].substr(0, 'application/json'.length) === 'application/json') {
         try {
@@ -159,6 +170,7 @@ function execute(ctx) {
   var action = ctx.actions.shift();
   request(ctx.domain, ctx.login.access_token, ctx.login.instanceHost, action.command, action.method, action.data, action.stream, function(err, res) {
     if (err) {
+      log('err', err, JSON.stringify(err));
       if (err.clearToken) ctx.login = undefined;
       if (err.retry) {
         ctx.actions.unshift(action);
