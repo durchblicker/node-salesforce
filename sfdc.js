@@ -75,7 +75,7 @@ function login(host, username, password, credential, client, secret, callback) {
     });
   }).on('error', callback).end();
 }
-function request(token, host, path, method, data, stream, callback) {
+function request(domain, token, host, path, method, data, stream, callback) {
   var options = {
     'host': host, 
     'port': 443, 
@@ -135,6 +135,7 @@ function request(token, host, path, method, data, stream, callback) {
       callback(err, data);
     });
   }).on('error', callback).end(data);
+  if (domain) domain.add(request);
 }
 function makeURL(ctx, command, params) {
   command = util.isArray(command) ? command : [command];
@@ -166,7 +167,7 @@ function execute(ctx) {
   }
 
   var action = ctx.actions.shift();
-  request(ctx.login.access_token, ctx.login.instanceHost, action.command, action.method, action.data, action.stream, function(err, res) {
+  request(ctx.domain, ctx.login.access_token, ctx.login.instanceHost, action.command, action.method, action.data, action.stream, function(err, res) {
     if (err) {
       log('err', err, JSON.stringify(err));
       if (err.clearToken) ctx.login = undefined;
@@ -221,7 +222,8 @@ function describe(ctx, objectClass, callback) {
   ctx.actions.push({
     'command':makeURL(ctx, objectClass),
     'method':'GET',
-    'callback':callback
+    'callback':callback,
+    'domain':process.domain
   });
   execute(ctx);
 }
@@ -230,7 +232,8 @@ function query(ctx, query, callback) {
   ctx.actions.push({
     'command':makeURL(ctx,'query',{'q':query}),
     'method':'GET',
-    'callback':callback
+    'callback':callback,
+    'domain':process.domain
   });
   execute(ctx);
 }
@@ -238,7 +241,8 @@ function search(ctx, query, callback) {
   ctx.actions.push({
     'command':makeURL(ctx,'search',{'q':query}),
     'method':'GET',
-    'callback':callback
+    'callback':callback,
+    'domain':process.domain
   });
   execute(ctx);
 }
@@ -247,7 +251,8 @@ function create(ctx, objectClass, object, callback) {
     'command':makeURL(ctx,['sobjects',objectClass]),
     'method':'POST',
     'data':new Buffer(JSON.stringify(object)),
-    'callback':callback
+    'callback':callback,
+    'domain':process.domain
   });
   execute(ctx);
 }
@@ -265,7 +270,8 @@ function fetch(ctx, objectClass, id, fields, callback) {
   ctx.actions.push({
     'command':makeURL(ctx, ['sobjects',objectClass,id], fields),
     'method':'GET',
-    'callback':callback
+    'callback':callback,
+    'domain':process.domain
   });
   execute(ctx);
 }
@@ -274,7 +280,8 @@ function update(ctx, objectClass, id, data, callback) {
     'command':makeURL(ctx,['sobjects',objectClass,id]),
     'method':'PATCH',
     'data':new Buffer(JSON.stringify(data)),
-    'callback':callback
+    'callback':callback,
+    'domain':process.domain
   });
   execute(ctx);
 }
@@ -283,7 +290,8 @@ function upsert(ctx, objectClass, data, indexField, callback) {
     'command':makeURL(ctx,['sobjects',objectClass,indexField,data[indexField]]),
     'method':'PATCH',
     'data':new Buffer(JSON.stringify(data)),
-    'callback':callback
+    'callback':callback,
+    'domain':process.domain
   });
   execute(ctx);
 }
@@ -291,7 +299,8 @@ function remove(ctx, objectClass, id, callback) {
   ctx.actions.push({
     'command':makeURL(ctx,['sobjects',objectClass,id]),
     'method':'DELETE',
-    'callback':callback
+    'callback':callback,
+    'domain':process.domain
   });
   execute(ctx);
 }
@@ -300,7 +309,8 @@ function externalFetch(ctx, objectClass, indexField, indexValue, callback) {
   ctx.actions.push({
     'command':makeURL(ctx,['sobjects',objectClass,indexField,indexValue]),
     'method':'GET',
-    'callback':callback
+    'callback':callback,
+    'domain':process.domain
   });
   execute(ctx);
 }
@@ -309,7 +319,8 @@ function externalUpdate(ctx, objectClass, data, indexField, callback) {
     'command':makeURL(ctx,['sobjects',objectClass,indexField,data[indexField]]),
     'method':'PATCH',
     'data':new Buffer(JSON.stringify(data)),
-    'callback':callback
+    'callback':callback,
+    'domain':process.domain
   });
   execute(ctx);
 }
@@ -317,7 +328,8 @@ function externalRemove(ctx, objectClass, indexField, indexValue, callback) {
   ctx.actions.push({
     'command':makeURL(ctx,['sobjects',objectClass,indexField,indexValue]),
     'method':'DELETE',
-    'callback':callback
+    'callback':callback,
+    'domain':process.domain
   });
   execute(ctx);
 }
@@ -334,7 +346,8 @@ function attachmentCreate(ctx, parentId, name, content, type, callback) {
     'command':makeURL(ctx,['sobjects','Attachment']),
     'method':'POST',
     'data':content,
-    'callback':callback
+    'callback':callback,
+    'domain':process.domain
   });
   execute(ctx);
 }
@@ -361,7 +374,8 @@ function blobStream(ctx, objectClass, id, fields, callback) {
     'command':makeURL(ctx, ['sobjects',objectClass,id,fields]),
     'method':'GET',
     'stream':true,
-    'callback':callback
+    'callback':callback,
+    'domain':process.domain
   });
   execute(ctx);
 }
@@ -399,3 +413,4 @@ function attachmentStream(ctx, id, callback) {
     });
   });
 }
+
